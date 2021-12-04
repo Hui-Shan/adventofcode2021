@@ -39,14 +39,14 @@ class Submarine2(Submarine1):
     def set_aim(self, value):
         self.aim = value
 
-    def edit_location(self, command: str):
-        diff = int(command.split(" ")[1])
-        if command.startswith("forward"):
+    def edit_location(self, commando: str):
+        diff = int(commando.split(" ")[1])
+        if commando.startswith("forward"):
             self.set_horizontal(self.get_horizontal() + diff)
             self.set_depth(self.get_depth() + diff * self.get_aim())
-        elif command.startswith("down"):
+        elif commando.startswith("down"):
             self.set_aim(self.get_aim() + diff)
-        elif command.startswith("up"):
+        elif commando.startswith("up"):
             self.set_aim(self.get_aim() - diff)
 
 
