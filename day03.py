@@ -51,8 +51,16 @@ def get_rating(df_in: pd.DataFrame, most: bool = True):
     ii = 1
 
     while sum(sel) > 1 and ii < len(df_in.columns):
-        ordered_bits = df_in.loc[sel, ii].value_counts().index.to_list()
-        sel = sel & (df_in[ii] == ordered_bits[count_index])
+        counts = df_in.loc[sel, ii].value_counts()
+        ordered_bits = counts.index.to_list()
+        bit_to_match = ordered_bits[count_index]
+        if counts[0] == counts[-1]:
+            if most:
+                bit_to_match = '1'
+            else:
+                bit_to_match = '0'
+
+        sel = sel & (df_in[ii] == bit_to_match)
         ii += 1
 
     return ''.join(df_in.loc[sel, ].values[0].tolist())
