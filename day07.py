@@ -17,7 +17,7 @@ def calculate_fuel_costs(crabs: np.array, index: int, linear: bool = False):
 if __name__ == "__main__":
     test_input = np.array([16, 1, 2, 0, 4, 2, 7, 1, 2, 14])
 
-    with open('inputs/input07.txt') as infile:
+    with open("inputs/input07.txt") as infile:
         input_strings = infile.readlines()[0].strip().split(",")
         user_input = [int(val) for val in input_strings]
 

@@ -1,21 +1,16 @@
 from typing import Dict, List
 
 
-lengths = {
-    2: 1,
-    3: 7,
-    4: 4,
-    7: 8
-}
+lengths = {2: 1, 3: 7, 4: 4, 7: 8}
 
 
 def alphasort(inp: str):
-    """ Returns input string in alphabetical order """
-    return ''.join(sorted(inp))
+    """Returns input string in alphabetical order"""
+    return "".join(sorted(inp))
 
 
 def total_overlap(inp: str, comparison: str):
-    """ Returns True if all elements in inp are also in comparison """
+    """Returns True if all elements in inp are also in comparison"""
     present = True
     for letter in inp:
         present = present & (letter in comparison)
@@ -24,12 +19,12 @@ def total_overlap(inp: str, comparison: str):
 
 
 def get_output_part(lines_in: List) -> List:
-    """ Returns alphabetically sorted output digits """
+    """Returns alphabetically sorted output digits"""
     lines_out = []
     for line in lines_in:
-       output_parts = line.strip().split(" | ")[1].split(" ")
-       output_parts_sorted = [alphasort(elem) for elem in output_parts]
-       lines_out.append(output_parts_sorted)
+        output_parts = line.strip().split(" | ")[1].split(" ")
+        output_parts_sorted = [alphasort(elem) for elem in output_parts]
+        lines_out.append(output_parts_sorted)
 
     return lines_out
 
@@ -57,7 +52,9 @@ def decode_input(signal_patterns: List) -> Dict:
     patterns_to_find = [pat for pat in sorted_patterns if pat not in patterns_found]
     for pat in patterns_to_find:
         if len(pat) == 6:
-            if total_overlap(digit2pattern[4], pat) and total_overlap(digit2pattern[7], pat):
+            if total_overlap(digit2pattern[4], pat) and total_overlap(
+                digit2pattern[7], pat
+            ):
                 digit2pattern[9] = pat
                 patterns_found.append(pat)
             elif total_overlap(digit2pattern[7], pat):
@@ -88,7 +85,7 @@ def decode_input(signal_patterns: List) -> Dict:
 
 
 if __name__ == "__main__":
-    with open('inputs/input08.txt') as infile:
+    with open("inputs/input08.txt") as infile:
         user_input = infile.readlines()
 
     outpart = get_output_part(user_input)
@@ -116,6 +113,3 @@ if __name__ == "__main__":
 
     res2 = total_sum
     print(res2)
-
-
-

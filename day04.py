@@ -38,8 +38,7 @@ class BingoBoard:
         return last_num * self.get_sum_unmarked()
 
     def __str__(self):
-        return str(self.get_grid()) + "\n" + \
-               str(self.get_drawn())
+        return str(self.get_grid()) + "\n" + str(self.get_drawn())
 
 
 class BingoGame:
@@ -63,9 +62,9 @@ class BingoGame:
 
                     if self.boards[bb].is_winner():
                         winner_dict = {
-                            'board': bb,
-                            'number': num,
-                            'score': self.boards[bb].get_score(num)
+                            "board": bb,
+                            "number": num,
+                            "score": self.boards[bb].get_score(num),
                         }
                         self.winner_list.append(winner_dict)
 
@@ -74,13 +73,13 @@ class BingoGame:
 
 
 def get_drawn_numbers(lines_in: List) -> List:
-    """ Returns drawn numbers in List """
+    """Returns drawn numbers in List"""
 
     return [int(val) for val in lines_in[0].strip().split(",")]
 
 
 def get_boards(lines_in: List) -> List:
-    """ Returns BingoBoard List """
+    """Returns BingoBoard List"""
 
     board_list = []
     make_new_board = False
@@ -116,8 +115,8 @@ if __name__ == "__main__":
     first_winner = winners[0]
     last_winner = winners[-1]
 
-    res1 = first_winner['score']
+    res1 = first_winner["score"]
     print(res1)
 
-    res2 = last_winner['score']
+    res2 = last_winner["score"]
     print(res2)

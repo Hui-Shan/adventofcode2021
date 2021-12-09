@@ -18,8 +18,8 @@ def get_rates(df_in: pd.DataFrame) -> Dict:
         least_common_binary += str(least_common_bit)
 
     rates = {
-        'gamma': most_common_binary,
-        'epsilon': least_common_binary,
+        "gamma": most_common_binary,
+        "epsilon": least_common_binary,
     }
 
     return rates
@@ -56,14 +56,21 @@ def get_rating(df_in: pd.DataFrame, most: bool = True):
         bit_to_match = ordered_bits[count_index]
         if counts[0] == counts[-1]:
             if most:
-                bit_to_match = '1'
+                bit_to_match = "1"
             else:
-                bit_to_match = '0'
+                bit_to_match = "0"
 
         sel = sel & (df_in[ii] == bit_to_match)
         ii += 1
 
-    return ''.join(df_in.loc[sel, ].values[0].tolist())
+    value_list = (
+        df_in.loc[
+            sel,
+        ]
+        .values[0]
+        .tolist()
+    )
+    return "".join(value_list)
 
 
 if __name__ == "__main__":
@@ -83,7 +90,7 @@ if __name__ == "__main__":
 
     rates_in = get_rates(df)
 
-    res1 = compute_power_consumption(rates_in['gamma'], rates_in['epsilon'])
+    res1 = compute_power_consumption(rates_in["gamma"], rates_in["epsilon"])
     print(res1)
 
     res2 = get_life_support_rating(df_in=df)

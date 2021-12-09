@@ -4,7 +4,7 @@ from typing import List
 
 
 def get_points_str(line_str: str) -> tuple:
-    """ Return tuple of coordinates from line string """
+    """Return tuple of coordinates from line string"""
 
     point_list = line_str.strip().split(" -> ")
 
@@ -27,7 +27,7 @@ def get_grid_size(inputs: List):
 
 
 if __name__ == "__main__":
-    with open('inputs/input05.txt') as infile:
+    with open("inputs/input05.txt") as infile:
         user_input = infile.readlines()
 
     grid_size = get_grid_size(user_input)
