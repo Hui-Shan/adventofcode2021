@@ -2,26 +2,11 @@ import numpy as np
 
 from typing import List
 
-_points = {
-    ")": 3,
-    "]": 57,
-    "}": 1197,
-    ">": 25137
-}
+_points = {")": 3, "]": 57, "}": 1197, ">": 25137}
 
-_opener = {
-    ")": "(",
-    "]": "[",
-    "}": "{",
-    ">": "<"
-}
+_opener = {")": "(", "]": "[", "}": "{", ">": "<"}
 
-_comp_points = {
-    ")": 1,
-    "]": 2,
-    "}": 3,
-    ">": 4
-}
+_comp_points = {")": 1, "]": 2, "}": 3, ">": 4}
 
 _closer = {v: k for k, v in _opener.items()}
 
@@ -58,7 +43,7 @@ def calculate_corruption_score(line: str) -> int:
         while k > -1 and added_score is False:
             if searched[k] == 0:
                 if stripped[k] == opener:
-                    searched[k: cid + 1] = 1
+                    searched[k : cid + 1] = 1
                 else:
                     exp = _closer[stripped[k]]
                     closed = False
@@ -86,14 +71,14 @@ def get_completion(incomplete: str) -> str:
         while k > -1:
             if searched[k] == 0:
                 if stripped[k] == opener:
-                    searched[k: cid + 1] = 1
+                    searched[k : cid + 1] = 1
                 k = 0
             k -= 1
 
     unmatched = [sym for (sym, search) in zip(stripped, searched) if search == 0]
     to_add = [_closer[el] for el in unmatched]
 
-    return ''.join(to_add[::-1])
+    return "".join(to_add[::-1])
 
 
 def get_autocompletion_score(completion: str) -> int:
@@ -108,16 +93,18 @@ if __name__ == "__main__":
     with open("inputs/input10.txt") as infile:
         user_input = infile.readlines()
 
-    test_input = ["[({(<(())[]>[[{[]{<()<>>",
-                  "[(()[<>])]({[<{<<[]>>(",
-                  "{([(<{}[<>[]}>{[]{[(<()>",
-                  "(((({<>}<{<{<>}{[]{[]{}",
-                  "[[<[([]))<([[{}[[()]]]",
-                  "[{[{({}]{}}([{[{{{}}([]",
-                  "{<[[]]>}<{[{[{[]{()[[[]",
-                  "[<(<(<(<{}))><([]([]()",
-                  "<{([([[(<>()){}]>(<<{{",
-                  "<{([{{}}[<[[[<>{}]]]>[]]]"]
+    test_input = [
+        "[({(<(())[]>[[{[]{<()<>>",
+        "[(()[<>])]({[<{<<[]>>(",
+        "{([(<{}[<>[]}>{[]{[(<()>",
+        "(((({<>}<{<{<>}{[]{[]{}",
+        "[[<[([]))<([[{}[[()]]]",
+        "[{[{({}]{}}([{[{{{}}([]",
+        "{<[[]]>}<{[{[{[]{()[[[]",
+        "[<(<(<(<{}))><([]([]()",
+        "<{([([[(<>()){}]>(<<{{",
+        "<{([{{}}[<[[[<>{}]]]>[]]]",
+    ]
 
     #
     test_input2 = [
@@ -125,7 +112,7 @@ if __name__ == "__main__":
         "[(()[<>])]({[<{<<[]>>(",
         "(((({<>}<{<{<>}{[]{[]{}",
         "{<[[]]>}<{[{[{[]{()[[[]",
-        "<{([{{}}[<[[[<>{}]]]>[]]"
+        "<{([{{}}[<[[[<>{}]]]>[]]",
     ]
 
     high_score = 0
@@ -143,5 +130,5 @@ if __name__ == "__main__":
     print(res1)
 
     completion_scores.sort()
-    res2 = completion_scores[int(len(completion_scores)/2)]
+    res2 = completion_scores[int(len(completion_scores) / 2)]
     print(res2)
