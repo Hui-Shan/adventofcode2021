@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 
 class Polymer:
@@ -90,7 +90,9 @@ class PolymerDict:
         return counts[-1][1] - counts[0][1]
 
 
-def get_polymer_and_reactions(txt_input: List[str], split: str = " -> ") -> Tuple:
+def get_polymer_and_reactions(
+    txt_input: List[str], split: str = " -> "
+) -> Tuple[str, Dict[str, str]]:
     start = ""
     reactions = {}
 
@@ -141,7 +143,6 @@ if __name__ == "__main__":
     poly2 = PolymerDict(my_start, my_reactions)
 
     for ii in range(40):
-        print(ii)
         poly2.step()
 
     res2 = poly2.get_difference_quantity_most_least()
