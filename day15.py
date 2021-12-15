@@ -4,6 +4,8 @@ import numpy as np
 
 from typing import List
 
+from utils import get_time
+
 
 class Node:
     def __init__(self, node_id: str, level: int):
@@ -33,7 +35,9 @@ class Node:
 
 class Network:
     def __init__(self, nodes: List[Node], start_node_id: str, end_node_id: str):
-        self.nodes = nodes
+        self.nodes = {}
+        for node in nodes:
+            self.nodes[node.id] = node
 
         self.start_node = self.get_node(start_node_id)
         self.start_node.cost = 0
@@ -46,9 +50,8 @@ class Network:
         return self.end_node.cost < np.Inf
 
     def get_node(self, node_id: str):
-        found_nodes = [item for item in self.nodes if item.id == node_id]
-        if len(found_nodes) == 1:
-            return found_nodes[0]
+        if node_id in self.nodes.keys():
+            return self.nodes[node_id]
         else:
             return None
 
@@ -56,9 +59,7 @@ class Network:
         current_node = None
         if len(self.candidates) > 0:
             min_level = np.min([node.cost for node in self.candidates])
-            current_node = [node for node in self.candidates if node.cost == min_level][
-                0
-            ]
+            current_node = [el for el in self.candidates if el.cost == min_level][0]
 
         return current_node
 
@@ -134,6 +135,8 @@ def get_node_id(y: int, x: int, order: int):
 
 
 if __name__ == "__main__":
+    t0 = get_time()
+
     with open("inputs/input15.txt") as infile:
         puzzle_input = infile.readlines()
 
@@ -172,13 +175,17 @@ if __name__ == "__main__":
 
     network = Network(node_list, start_node_id=start_id, end_node_id=end_id)
     # Set neighbors
-    for netnode in network.nodes:
+    for netnode in network.nodes.values():
         neighbor_ids = get_neighboring_ids(netnode.id, order=node_order)
-        neighbor_nodes = [node for node in node_list if node.id in neighbor_ids]
+        neighbor_nodes = []
+        for id in neighbor_ids:
+            neighbor = network.get_node(id)
+            if neighbor is not None:
+                neighbor_nodes.append(neighbor)
         netnode.set_neighbors(neighbor_nodes)
 
     res1 = network.full_dijkstra()
-    print(f"Result 1: {res1}")
+    print(f"Result part 1: {res1}")
 
     # Make 5 times as large grid
     node_list2 = []
@@ -190,7 +197,7 @@ if __name__ == "__main__":
         for jj in range(ncols):
             nid = get_node_id(ii, jj, order=node_order)
 
-            new_node = Node(node_id=nid, level=int(lev))
+            new_node = Node(node_id=nid, level=big[ii, jj])
             node_list2.append(new_node)
 
             if ii == 0 and jj == 0:
@@ -198,16 +205,18 @@ if __name__ == "__main__":
             if ii == ncols - 1 and jj == nrows - 1:
                 end_id = nid
 
-    print("specify network 2")
     network2 = Network(node_list2, start_node_id=start_id, end_node_id=end_id)
 
     # Set neighbors
-    for netnode in network.nodes:
+    for netnode in network2.nodes.values():
         neighbor_ids = get_neighboring_ids(netnode.id, order=node_order)
-        neighbor_nodes = [node for node in node_list if node.id in neighbor_ids]
+        neighbor_nodes = []
+        for id in neighbor_ids:
+            neighbor = network2.get_node(id)
+            if neighbor is not None:
+                neighbor_nodes.append(neighbor)
         netnode.set_neighbors(neighbor_nodes)
 
-    print("Set neighbors")
-
     res2 = network2.full_dijkstra()
-    print(f"Part 2: {res2}")
+    print(f"Result part 2: {res2}")
+    print(f"Total runtime: {get_time() - t0}")
