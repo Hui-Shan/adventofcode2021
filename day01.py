@@ -3,7 +3,7 @@ import numpy as np
 
 def get_input() -> np.array:
     """Returns user input as numpy array"""
-    input_file = "inputs\\input01"
+    input_file = "inputs\\input01.txt"
 
     return np.loadtxt(input_file)
 

@@ -102,7 +102,7 @@ def get_boards(lines_in: List) -> List:
 
 
 if __name__ == "__main__":
-    with open("inputs\\input04") as infile:
+    with open("inputs/input04.txt") as infile:
         user_input = infile.readlines()
 
     numbers = get_drawn_numbers(lines_in=user_input)

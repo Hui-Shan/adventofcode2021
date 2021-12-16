@@ -51,7 +51,7 @@ class Submarine2(Submarine1):
 
 
 if __name__ == "__main__":
-    with open("inputs/input02") as infile:
+    with open("inputs/input02.txt") as infile:
         commands = infile.readlines()
 
     yellow1 = Submarine1(0, 0)
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     yellow2 = Submarine2(0, 0, 0)
     for command in commands:
-        yellow2.edit_location(command=command)
+        yellow2.edit_location(commando=command)
 
     res2 = yellow2.get_depth_horizontal_multiplied()
     print(res2)

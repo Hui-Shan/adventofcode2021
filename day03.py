@@ -75,7 +75,7 @@ def get_rating(df_in: pd.DataFrame, most: bool = True):
 
 if __name__ == "__main__":
 
-    with open("inputs\\input03") as infile:
+    with open("inputs/input03.txt") as infile:
         user_input = infile.readlines()
 
     df = pd.DataFrame()
