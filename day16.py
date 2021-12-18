@@ -19,7 +19,16 @@ _mapping = {
     "F": "1111",
 }
 
-number_map = {4: "literal"}
+number_map = {
+    0: "sum",
+    1: "product",
+    2: "minimum",
+    3: "maximum",
+    4: "literal",
+    5: "gt",
+    6: "lt",
+    7: "equal",
+}
 
 key_map = {v: k for (k, v) in number_map.items()}
 
@@ -59,6 +68,48 @@ class Packet:
             version_sum += packet.get_version_sum()
 
         return version_sum
+
+    def apply_operator(self):
+        operator = number_map[self.packet_id]
+        if operator == "literal":
+            res = self.get_value()
+        elif operator == "product":
+            res = 1
+            for packet in self.subpackets:
+                res *= packet.apply_operator()
+        elif operator == "minimum":
+            res = self.subpackets[0].apply_operator()
+            for packet in self.subpackets[1:]:
+                value = packet.apply_operator()
+                if value < res:
+                    res = value
+        elif operator == "maximum":
+            res = self.subpackets[0].apply_operator()
+            for packet in self.subpackets[1:]:
+                value = packet.apply_operator()
+                if value > res:
+                    res = value
+        elif operator == "sum":
+            res = 0
+            for packet in self.subpackets:
+                res += packet.apply_operator()
+        elif operator == "gt":
+            res = (
+                self.subpackets[0].apply_operator()
+                > self.subpackets[1].apply_operator()
+            )
+        elif operator == "lt":
+            res = (
+                self.subpackets[0].apply_operator()
+                < self.subpackets[1].apply_operator()
+            )
+        elif operator == "equal":
+            res = (
+                self.subpackets[0].apply_operator()
+                == self.subpackets[1].apply_operator()
+            )
+
+        return res
 
     def __str__(self):
         if self.is_literal():
@@ -145,3 +196,6 @@ if __name__ == "__main__":
     packet, rest = get_packet_and_rest(rest)
     res1 = packet.get_version_sum()
     print(res1)
+
+    res2 = packet.apply_operator()
+    print(res2)
