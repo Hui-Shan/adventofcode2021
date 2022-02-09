@@ -180,13 +180,3 @@ if __name__ == "__main__":
 
     res2 = max_mag
     print(res2)
-    # snailfish_str = [
-    #     "[[[[0,7],4],[15,[0,13]]],[1,1]]",
-    #     "[[[[0,7],4],[[7,8],[0,13]]],[1,1]]"
-    # ]
-    #
-    # for snf_str in snailfish_str:
-    #     snf = SnailFishNumber.from_string(snf_str)
-    #     print(f"{snf_str} == {str(snf)}: {snf_str == str(snf)}")
-    #
-    #     print(snf.split())
