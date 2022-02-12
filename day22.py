@@ -5,7 +5,7 @@ import numpy as np
 from typing import List
 
 
-def get_on_off_ranges(txt_input: List):
+def get_on_off_ranges(txt_input: List) -> List:
     ranges = []
     for line in txt_input:
         stripped = line.strip()
@@ -51,7 +51,7 @@ class Zone:
 
         return within_range
 
-    def signed_volume(self):
+    def signed_volume(self) -> int:
         volume = 1
         for ii in range(len(self.corners)):
             volume *= self.corners[ii][1] - self.corners[ii][0]
