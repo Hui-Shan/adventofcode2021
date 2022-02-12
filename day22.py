@@ -5,89 +5,6 @@ import numpy as np
 from typing import List
 
 
-class Cube:
-    def __init__(
-        self,
-        mode: str,
-        xmin: int,
-        xmax: int,
-        ymin: int,
-        ymax: int,
-        zmin: int,
-        zmax: int,
-    ):
-        self.mode = mode
-        self.xmin = xmin
-        self.xmax = xmax
-        self.ymin = ymin
-        self.ymax = ymax
-        self.zmin = zmin
-        self.zmax = zmax
-
-        if self.mode == "on":
-            self.array = np.ones((xmax - xmin + 1, ymax - ymin + 1, zmax - zmin + 1))
-        else:
-            self.array = np.zeros((xmax - xmin + 1, ymax - ymin + 1, zmax - zmin + 1))
-
-    def overlap(self, other: Cube):
-        if (
-            (self.xmin < other.xmax < self.xmax or other.xmin < self.xmin < other.xmax)
-            and (
-                self.ymin < other.ymax < self.ymax
-                or other.ymin < self.ymin < other.ymax
-            )
-            and (
-                self.zmin < other.zmax < self.zmax
-                or other.zmin < self.zmin < other.zmax
-            )
-        ):
-            return True
-        else:
-            return False
-
-    def update_array(self, other: Cube):
-        if self.mode == "on" and other.mode == "on":
-            x_overlap = [
-                idx
-                for (idx, x) in enumerate(range(self.xmin, self.xmax + 1))
-                if other.xmin < x < other.xmax
-            ]
-            y_overlap = [
-                idy
-                for (idy, y) in enumerate(range(self.ymin, self.ymax + 1))
-                if other.ymin < y < other.ymax
-            ]
-            z_overlap = [
-                idz
-                for (idz, z) in enumerate(range(self.zmin, self.zmax + 1))
-                if other.zmin < z < other.zmax
-            ]
-            self.array[x_overlap, y_overlap, z_overlap] += 1
-        elif self.mode == "off" and other.mode == "on":
-            x_overlap = [
-                idx
-                for (idx, x) in enumerate(range(other.xmin, other.xmax + 1))
-                if self.xmin < x < self.xmax
-            ]
-            y_overlap = [
-                idy
-                for (idy, y) in enumerate(range(other.ymin, other.ymax + 1))
-                if self.ymin < y < self.ymax
-            ]
-            z_overlap = [
-                idz
-                for (idz, z) in enumerate(range(other.zmin, other.zmax + 1))
-                if self.zmin < z < self.zmax
-            ]
-            other.array[x_overlap, y_overlap, z_overlap] = 0
-
-    def number_of_on_pixels(self):
-        return np.sum(self.array[self.array == 1])
-
-    def __str__(self):
-        return f"{self.mode} : [{self.xmin}-{self.xmax}, {self.ymin}-{self.ymax}, {self.zmin}-{self.zmax}]"
-
-
 def get_on_off_ranges(txt_input: List):
     ranges = []
     for line in txt_input:
@@ -113,18 +30,137 @@ def get_on_off_ranges(txt_input: List):
     return ranges
 
 
+class Zone:
+    def __init__(self, x_range: tuple, y_range: tuple, z_range: tuple, sign: int):
+        self.corners = [
+            (x_range[0], x_range[1] + 1),
+            (y_range[0], y_range[1] + 1),
+            (z_range[0], z_range[1] + 1),
+        ]
+        self.sign = sign
+
+    def is_positive(self) -> bool:
+        return self.sign > 0
+
+    def is_init_step(self) -> bool:
+        within_range = True
+        for ii in range(len(self.corners)):
+            within_range = within_range and (
+                min(self.corners[ii]) >= -50 and max(self.corners[ii]) <= 52
+            )
+
+        return within_range
+
+    def signed_volume(self):
+        volume = 1
+        for ii in range(len(self.corners)):
+            volume *= self.corners[ii][1] - self.corners[ii][0]
+        return self.sign * volume
+
+    def intersection(self, other: Zone) -> Zone:
+        corners = []
+
+        for ii in range(len(self.corners)):
+            self_max = self.corners[ii][1]
+            other_max = other.corners[ii][1]
+            self_min = self.corners[ii][0]
+            other_min = other.corners[ii][0]
+            min_int = max(self_min, other_min)
+            max_int = min(self_max, other_max) - 1
+            if max_int >= min_int:
+                int_corner = (min_int, max_int)
+            else:
+                return None
+            corners.append(int_corner)
+
+        return Zone(
+            (min(corners[0]), max(corners[0])),
+            (min(corners[1]), max(corners[1])),
+            (min(corners[2]), max(corners[2])),
+            -other.sign,
+        )
+
+    def __str__(self):
+        corner_ranges = ""
+        for ii in range(3):
+            corner_ranges += (
+                str(min(self.corners[ii])) + "-" + str(max(self.corners[ii]) - 1) + " "
+            )
+        return corner_ranges + str(self.sign)
+
+
+def reboot_reactor(instructions: List[Zone]) -> int:
+    zones = []
+    for (ii, inst) in enumerate(instructions):
+        zones_to_add = []
+
+        if inst.is_positive():
+            zones_to_add.append(inst)
+
+        for known_zone in zones:
+            int_zone = inst.intersection(known_zone)
+            if int_zone is not None:
+                zones_to_add.append(int_zone)
+
+        zones.extend(zones_to_add)
+
+    return sum([zone.signed_volume() for zone in zones])
+
+
 if __name__ == "__main__":
     with open("inputs/input22.txt") as infile:
         puzzle_input = infile.readlines()
 
-    # test_input = [
-    #     "on x=10..12,y=10..12,z=10..12",
-    #     "on x=11..13,y=11..13,z=11..13",
-    #     "off x=9..11,y=9..11,z=9..11",
-    #     "on x=10..10,y=10..10,z=10..10"
-    # ]
+    test_input = [
+        "on x=-20..26,y=-36..17,z=-47..7",
+        "on x=-20..33,y=-21..23,z=-26..28",
+        "on x=-22..28,y=-29..23,z=-38..16",
+        "on x=-46..7,y=-6..46,z=-50..-1",
+        "on x=-49..1,y=-3..46,z=-24..28",
+        "on x=2..47,y=-22..22,z=-23..27",
+        "on x=-27..23,y=-28..26,z=-21..29",
+        "on x=-39..5,y=-6..47,z=-3..44",
+        "on x=-30..21,y=-8..43,z=-13..34",
+        "on x=-22..26,y=-27..20,z=-29..19",
+        "off x=-48..-32,y=26..41,z=-47..-37",
+        "on x=-12..35,y=6..50,z=-50..-2",
+        "off x=-48..-32,y=-32..-16,z=-15..-5",
+        "on x=-18..26,y=-33..15,z=-7..46",
+        "off x=-40..-22,y=-38..-28,z=23..41",
+        "on x=-16..35,y=-41..10,z=-47..6",
+        "off x=-32..-23,y=11..30,z=-14..3",
+        "on x=-49..-5,y=-3..45,z=-29..18",
+        "off x=18..30,y=-20..-8,z=-3..13",
+        "on x=-41..9,y=-7..43,z=-33..15",
+        "on x=-54112..-39298,y=-85059..-49293,z=-27449..7877",
+        "on x=967..23432,y=45373..81175,z=27513..53682",
+    ]
+    test_input = puzzle_input
 
-    init_ranges = get_on_off_ranges(puzzle_input)
+    init_ranges = get_on_off_ranges(test_input)
+    init_instructions = []
+    puzzle_instructions = []
+    for item in init_ranges:
+        if item[0] == "on":
+            sign = 1
+        else:
+            sign = -1
+
+        zone = Zone(
+            x_range=(item[1]["xmin"], item[1]["xmax"]),
+            y_range=(item[1]["ymin"], item[1]["ymax"]),
+            z_range=(item[1]["zmin"], item[1]["zmax"]),
+            sign=sign,
+        )
+
+        puzzle_instructions.append(zone)
+        if zone.is_init_step():
+            init_instructions.append(zone)
+            # print(zone.signed_volume())
+
+    print("Part 1")
+    res1b = reboot_reactor(init_instructions)
+    print(f"Reboot version: {res1b}")
 
     # Part 1
     init_procedure_area = np.zeros((101, 101, 101))
@@ -167,55 +203,8 @@ if __name__ == "__main__":
         init_procedure_area[xmin : xmax + 1, ymin : ymax + 1, zmin : zmax + 1] = value
 
     res1 = np.sum(init_procedure_area).astype(int)
-    print(res1)
+    print(f"Exp from simple version: {res1}")
 
-    # # Part 2
-    # cube_list = []
-    # for command in init_ranges:
-    #     if command[0] == "on":
-    #         value = 1
-    #     else:
-    #         value = 0
-    #
-    #     coords = command[1]
-    #
-    #     if coords["xmin"] < xmin_min:
-    #         xmin_min = coords["xmin"]
-    #     if coords["ymin"] < ymin_min:
-    #         ymin_min = coords["ymin"]
-    #     if coords["zmin"] < zmin_min:
-    #         zmin_min = coords["zmin"]
-    #     if coords["xmax"] > xmax_max:
-    #         xmax_max = coords["xmax"]
-    #     if coords["ymax"] > ymax_max:
-    #         ymax_max = coords["ymax"]
-    #     if coords["zmax"] > zmax_max:
-    #         zmax_max = coords["zmax"]
-    #
-    #     try:
-    #
-    #         new_cube = Cube(
-    #             command[0],
-    #             xmin=coords["xmin"],
-    #             xmax=coords["xmax"],
-    #             ymin=coords["ymin"],
-    #             ymax=coords["ymax"],
-    #             zmin=coords["zmin"],
-    #             zmax=coords["zmax"],
-    #         )
-    #     except:
-    #         print(coords)
-    #     cube_list.append(new_cube)
-    #
-    # overlapping_cubes = 0
-    # for (ii, cube) in enumerate(cube_list[1:]):
-    #     print(ii)
-    #     print(f"#{ii}: {cube} overlaps with")
-    #     for other_cube in cube_list[:ii]:
-    #         cubes_overlap = cube.overlap(other_cube)
-    #         if cubes_overlap:
-    #             overlapping_cubes += 1
-    #             cube.update_array(other_cube)
-    #
-    # for cube in cube_list:
-    #     print(cube.number_of_on_pixels())
+    print("Part 2")
+    res2 = reboot_reactor(puzzle_instructions)
+    print(f"Reboot version: {res2}")
